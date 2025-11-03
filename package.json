@@ -1,10 +1,17 @@
 {
-  "name": "${PROJECT_NAME}",
+  "name": "credential-network",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "private": true
+  "type": "module",
+  "dependencies": {
+    "libp2p": "1.2.3",
+    "@libp2p/tcp": "9.0.18",
+    "@libp2p/mplex": "10.0.18",
+    "@libp2p/noise": "12.0.1",
+    "@libp2p/gossipsub": "15.0.8",
+    "@libp2p/bootstrap": "12.0.7",
+    "@libp2p/kad-dht": "16.1.0",
+    "@libp2p/peer-id-factory": "4.2.4",
+    "express": "5.1.0",
+    "uuid": "13.0.0"
+  }
 }
