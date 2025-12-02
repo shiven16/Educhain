@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "libp2p": "1.2.3",
+    "libp2p": "0.45.9",
     "@libp2p/tcp": "9.0.18",
     "@libp2p/mplex": "10.0.18",
     "@libp2p/noise": "12.0.1",
     "@libp2p/gossipsub": "15.0.8",
-    "@libp2p/bootstrap": "12.0.7",
-    "@libp2p/kad-dht": "16.1.0",
     "@libp2p/peer-id-factory": "4.2.4",
+    "@libp2p/utils": "7.0.7",
+    "@libp2p/interface-pubsub": "4.0.1",
     "express": "5.1.0",
-    "uuid": "13.0.0"
+    "uuid": "13.0.0",
+    "@libp2p/identify": "1.0.12",
+    "@libp2p/logger": "6.2.0"
   }
 }

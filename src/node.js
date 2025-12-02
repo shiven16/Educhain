@@ -3,8 +3,10 @@ import { tcp } from '@libp2p/tcp';
 import { mplex } from '@libp2p/mplex';
 import { noise } from '@libp2p/noise';
 import { gossipsub } from '@libp2p/gossipsub';
-import { bootstrap } from '@libp2p/bootstrap';
-import { kadDHT } from '@libp2p/kad-dht';
+import { createEd25519PeerId } from '@libp2p/peer-id-factory';
+import { logger } from '@libp2p/logger';
+import { identify } from '@libp2p/identify';
+
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
@@ -15,7 +17,6 @@ import { API } from './api.js';
  * Main Node class - represents a peer in the credential network
  * Handles P2P communication, credential storage, and signature verification
  */
-
 class CredentialNode {
     constructor(nodeName, nodeType) {
         this.nodeName = nodeName;
@@ -66,13 +67,22 @@ class CredentialNode {
     async start() {
         const port = parseInt(process.env.P2P_PORT || '4000');
 
-        // Bootstrap peers for peer discovery
-        const bootstrapList = [];
-        if (process.env.BOOTSTRAP_PEER) {
-            bootstrapList.push(process.env.BOOTSTRAP_PEER);
-        }
+        // Create peer ID first
+        console.log('[PeerID] Generating peer identity...');
+        const peerId = await createEd25519PeerId();
+        console.log(`[PeerID] Created peer ID: ${peerId.toString()}`);
+
+        // Save peer ID for reference
+        const peerIdPath = path.join(this.dataDir, 'peer-id.json');
+        fs.writeFileSync(peerIdPath, JSON.stringify({
+            id: peerId.toString(),
+            created: new Date().toISOString()
+        }));
+
+        console.log('[libp2p] Creating libp2p node...');
 
         this.libp2pNode = await createLibp2p({
+            peerId: peerId,
             addresses: {
                 listen: [`/ip4/0.0.0.0/tcp/${port}`]
             },
@@ -82,15 +92,11 @@ class CredentialNode {
             services: {
                 pubsub: gossipsub({
                     allowPublishToZeroTopicPeers: true,
-                    emitSelf: false // Don't receive our own messages
+                    emitSelf: false
                 }),
-                dht: kadDHT()
-            },
-            peerDiscovery: bootstrapList.length > 0 ? [
-                bootstrap({
-                    list: bootstrapList
-                })
-            ] : []
+                identify: identify(),
+                logger: logger()
+            }
         });
 
         await this.libp2pNode.start();

@@ -8,6 +8,11 @@ COPY package.json ./
 # Install dependencies
 RUN npm install
 
+# Patch broken logger
+COPY src/logger.js node_modules/@libp2p/logger/dist/src/index.js
+
+
+
 # Copy source code
 COPY src/ ./src/
 
