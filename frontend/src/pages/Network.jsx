@@ -1,51 +1,72 @@
 import React, { useEffect, useState } from "react";
 import NodeCard from "../components/NodeCard";
-import NetworkGraph from "../components/NetworkGraph";
 import { fetchNodeData } from "../utils/api";
 
 export default function Network() {
   const [nodes, setNodes] = useState([]);
-  
-  // URLs of your Docker nodes
+
   const nodeUrls = [
     "http://localhost:3001",
     "http://localhost:3002",
     "http://localhost:3003",
-    "http://localhost:3004"
+    "http://localhost:3004",
   ];
 
   async function loadNodes() {
-    const results = await Promise.all(nodeUrls.map(url => fetchNodeData(url)));
-    setNodes(results);
+    const result = await Promise.all(nodeUrls.map(fetchNodeData));
+    setNodes(result);
   }
 
   useEffect(() => {
     loadNodes();
-
-    const interval = setInterval(loadNodes, 3000); // refresh every 3 sec
+    const interval = setInterval(loadNodes, 3000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
-        EduChain Network Visualization
+    <div
+      style={{
+        padding: "50px",
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #eef2ff, #fafafa)",
+      }}
+    >
+      <h1
+        style={{
+          textAlign: "center",
+          marginBottom: "40px",
+          fontSize: "36px",
+          fontWeight: "800",
+          background: "linear-gradient(90deg, #6366f1, #3b82f6)",
+          WebkitBackgroundClip: "text",
+          color: "transparent",
+        }}
+      >
+        🌐 EduChain Network Visualization
       </h1>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-          gap: "20px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "30px",
           justifyItems: "center",
         }}
       >
-        {nodes.map((node, idx) => (
-          <NodeCard key={idx} node={node} />
+        {nodes.map((node, index) => (
+          <NodeCard key={index} node={node} />
         ))}
       </div>
 
-      <NetworkGraph nodes={nodes} />
+      <p
+        style={{
+          textAlign: "center",
+          marginTop: "40px",
+          opacity: 0.7,
+        }}
+      >
+        (Nodes auto-refresh every 3 seconds 🔄)
+      </p>
     </div>
   );
 }
