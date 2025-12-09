@@ -14,6 +14,7 @@
     "express": "5.1.0",
     "uuid": "13.0.0",
     "@libp2p/identify": "1.0.12",
-    "@libp2p/logger": "6.2.0"
+    "@libp2p/logger": "6.2.0", 
+    "nanoid": "^5.0.0"
   }
 }

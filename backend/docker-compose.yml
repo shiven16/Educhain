@@ -1,0 +1,175 @@
+version: "3.9"
+
+services:
+  registry:
+    container_name: registry
+    build: .
+    environment:
+      NODE_NAME: registry
+      NODE_TYPE: registry
+      HTTP_PORT: 3000
+      P2P_PORT: 4000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  university_1:
+    build: .
+    environment:
+      NODE_NAME: university_1
+      NODE_TYPE: university
+      HTTP_PORT: 3001
+      P2P_PORT: 4001
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  university_2:
+    build: .
+    environment:
+      NODE_NAME: university_2
+      NODE_TYPE: university
+      HTTP_PORT: 3002
+      P2P_PORT: 4002
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  university_3:
+    build: .
+    environment:
+      NODE_NAME: university_3
+      NODE_TYPE: university
+      HTTP_PORT: 3003
+      P2P_PORT: 4003
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  university_4:
+    build: .
+    environment:
+      NODE_NAME: university_4
+      NODE_TYPE: university
+      HTTP_PORT: 3004
+      P2P_PORT: 4004
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  university_5:
+    build: .
+    environment:
+      NODE_NAME: university_5
+      NODE_TYPE: university
+      HTTP_PORT: 3005
+      P2P_PORT: 4005
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  university_6:
+    build: .
+    environment:
+      NODE_NAME: university_6
+      NODE_TYPE: university
+      HTTP_PORT: 3006
+      P2P_PORT: 4006
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  employer_1:
+    build: .
+    environment:
+      NODE_NAME: employer_1
+      NODE_TYPE: employer
+      HTTP_PORT: 3011
+      P2P_PORT: 4011
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  employer_2:
+    build: .
+    environment:
+      NODE_NAME: employer_2
+      NODE_TYPE: employer
+      HTTP_PORT: 3012
+      P2P_PORT: 4012
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  employer_3:
+    build: .
+    environment:
+      NODE_NAME: employer_3
+      NODE_TYPE: employer
+      HTTP_PORT: 3013
+      P2P_PORT: 4013
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  employer_4:
+    build: .
+    environment:
+      NODE_NAME: employer_4
+      NODE_TYPE: employer
+      HTTP_PORT: 3014
+      P2P_PORT: 4014
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  relay_1:
+    build: .
+    environment:
+      NODE_NAME: relay_1
+      NODE_TYPE: relay
+      HTTP_PORT: 3021
+      P2P_PORT: 4021
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+  relay_2:
+    build: .
+    environment:
+      NODE_NAME: relay_2
+      NODE_TYPE: relay
+      HTTP_PORT: 3022
+      P2P_PORT: 4022
+      REGISTRY_URL: http://registry:3000
+    volumes:
+      - ./nodes:/app/nodes
+    networks:
+      - educhain
+
+networks:
+  educhain:
+    driver: bridge
