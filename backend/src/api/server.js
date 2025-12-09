@@ -1,20 +1,21 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { NODE_NAME, NODE_TYPE, HTTP_PORT, REGISTRY_ENABLED } from "../config.js";
+import { NODE_NAME, NODE_TYPE, HTTP_PORT, REGISTRY_ENABLED, DATA_DIR } from "../config.js";
 import { appendToLedger, findCredentialById, getLedger } from "../lib/ledger.js";
 import { signHash, verifyHashSignature, hashBuffer, ensureKeys } from "../lib/crypto.js";
-import { registryRecordHeartbeat, registryGetNodes } from "../lib/registry.js";
+import { registryRecordHeartbeat, registryGetNodes, registryStoreCredential, registryGetCredentials } from "../lib/registry.js";
 import { nanoid } from "nanoid";
 import fs from "fs";
+import path from "path";
 
 export function createApiServer({ broadcastCredential }) {
   const app = express();
-  app.use(bodyParser.json());
+  app.use(express.json());
 
   const { privateKeyPem, publicKeyPem } = ensureKeys();
 
   app.get("/health", (req, res) => {
-    res.json({ status: "ok", nodeName: NODE_NAME, nodeType: NODE_TYPE });
+    res.json({ status: "ok", node: NODE_NAME });
   });
 
   // ---- Issue credential (university nodes) ----
@@ -23,39 +24,46 @@ export function createApiServer({ broadcastCredential }) {
       return res.status(403).json({ error: "Only university nodes can issue credentials" });
     }
 
-    const { studentName, degree, year, pdfPath } = req.body;
+    try {
+      const { studentName, degree, year, pdfPath } = req.body;
 
-    if (!studentName || !degree || !year || !pdfPath) {
-      return res.status(400).json({ error: "Missing fields" });
+      if (!studentName || !degree || !year || !pdfPath) {
+        return res.status(400).json({ error: "Missing fields" });
+      }
+
+      // Read and hash the PDF
+      const pdfBuffer = await fs.promises.readFile(pdfPath);
+      const pdfHash = hashBuffer(pdfBuffer);
+
+      // Read issuer's public key (from ensureKeys() which is already called)
+      const issuerPublicKey = publicKeyPem;
+
+      // Create credential object
+      const credential = {
+        id: nanoid(),
+        studentName,
+        degree,
+        year,
+        issuer: NODE_NAME,
+        issuerPublicKey,
+        pdfHash,
+        signature: signHash(pdfHash, privateKeyPem),
+        timestamp: Date.now()
+      };
+
+      // Save to local ledger
+      appendToLedger(credential);
+
+      // Broadcast via P2P (will use allowPublishToZeroTopicPeers)
+      if (broadcastCredential) {
+        await broadcastCredential(credential);
+      }
+
+      res.json({ message: "Credential issued", credential });
+    } catch (err) {
+      console.error(`[${NODE_NAME}] Error issuing credential:`, err);
+      res.status(500).json({ error: err.message });
     }
-
-    if (!fs.existsSync(pdfPath)) {
-      return res.status(400).json({ error: "PDF not found on server path" });
-    }
-
-    const pdfBuffer = fs.readFileSync(pdfPath);
-    const pdfHash = hashBuffer(pdfBuffer);
-    const signature = signHash(pdfHash, privateKeyPem);
-
-    const credential = {
-      id: nanoid(),
-      studentName,
-      degree,
-      year,
-      issuer: NODE_NAME,
-      issuerPublicKey: publicKeyPem,
-      pdfHash,
-      signature,
-      timestamp: Date.now()
-    };
-
-    appendToLedger(credential);
-
-    if (broadcastCredential) {
-      await broadcastCredential(credential);
-    }
-
-    res.json({ message: "Credential issued", credential });
   });
 
   // ---- Verify credential (employer nodes) ----
@@ -100,13 +108,23 @@ export function createApiServer({ broadcastCredential }) {
   // ---- Registry endpoints (only for registry node) ----
   if (REGISTRY_ENABLED) {
     app.post("/registry/heartbeat", (req, res) => {
-      const { nodeName, nodeType, timestamp } = req.body;
-      registryRecordHeartbeat({ nodeName, nodeType, timestamp });
+      const { nodeName, nodeType, timestamp, p2pPort, peerId, ipAddress } = req.body;
+      registryRecordHeartbeat({ nodeName, nodeType, timestamp, p2pPort, peerId, ipAddress });
       res.json({ ok: true });
     });
 
     app.get("/network/nodes", (req, res) => {
       res.json(registryGetNodes());
+    });
+
+    app.post("/credentials/publish", (req, res) => {
+      const credential = req.body;
+      registryStoreCredential(credential);
+      res.json({ ok: true });
+    });
+
+    app.get("/credentials/list", (req, res) => {
+      res.json(registryGetCredentials());
     });
   }
 

@@ -9,6 +9,9 @@ services:
       NODE_TYPE: registry
       HTTP_PORT: 3000
       P2P_PORT: 4000
+    ports:
+      - "3000:3000"
+      - "4000:4000"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -22,6 +25,9 @@ services:
       HTTP_PORT: 3001
       P2P_PORT: 4001
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3001:3001"
+      - "4001:4001"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -35,6 +41,9 @@ services:
       HTTP_PORT: 3002
       P2P_PORT: 4002
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3002:3002"
+      - "4002:4002"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -48,6 +57,9 @@ services:
       HTTP_PORT: 3003
       P2P_PORT: 4003
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3003:3003"
+      - "4003:4003"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -61,6 +73,9 @@ services:
       HTTP_PORT: 3004
       P2P_PORT: 4004
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3004:3004"
+      - "4004:4004"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -74,6 +89,9 @@ services:
       HTTP_PORT: 3005
       P2P_PORT: 4005
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3005:3005"
+      - "4005:4005"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -87,6 +105,9 @@ services:
       HTTP_PORT: 3006
       P2P_PORT: 4006
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3006:3006"
+      - "4006:4006"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -100,6 +121,9 @@ services:
       HTTP_PORT: 3011
       P2P_PORT: 4011
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3011:3011"
+      - "4011:4011"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -113,6 +137,9 @@ services:
       HTTP_PORT: 3012
       P2P_PORT: 4012
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3012:3012"
+      - "4012:4012"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -126,6 +153,9 @@ services:
       HTTP_PORT: 3013
       P2P_PORT: 4013
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3013:3013"
+      - "4013:4013"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -139,6 +169,9 @@ services:
       HTTP_PORT: 3014
       P2P_PORT: 4014
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3014:3014"
+      - "4014:4014"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -152,6 +185,9 @@ services:
       HTTP_PORT: 3021
       P2P_PORT: 4021
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3021:3021"
+      - "4021:4021"
     volumes:
       - ./nodes:/app/nodes
     networks:
@@ -165,6 +201,9 @@ services:
       HTTP_PORT: 3022
       P2P_PORT: 4022
       REGISTRY_URL: http://registry:3000
+    ports:
+      - "3022:3022"
+      - "4022:4022"
     volumes:
       - ./nodes:/app/nodes
     networks:

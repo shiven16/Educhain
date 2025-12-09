@@ -1,5 +1,5 @@
 # Use Node.js 20 Alpine (lightweight)
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Create working directory inside container
 WORKDIR /app
