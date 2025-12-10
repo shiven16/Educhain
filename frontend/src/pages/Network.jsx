@@ -6,16 +6,29 @@ import "../styles/Network.css";
 export default function Network() {
   const [nodes, setNodes] = useState([]);
 
-  const nodeUrls = [
-    "http://localhost:3001",
-    "http://localhost:3002",
-    "http://localhost:3003",
-    "http://localhost:3004",
-  ];
-
   async function loadNodes() {
-    const result = await Promise.all(nodeUrls.map(fetchNodeData));
-    setNodes(result);
+    try {
+      // 1. Fetch active nodes from Registry
+      const res = await fetch("http://localhost:3000/network/nodes");
+      const registryNodes = await res.json();
+
+      // 2. Construct URLs (Registry + all active nodes)
+      // We assume running locally, so we use localhost + httpPort
+      // Filter out the registry node itself from the visualization
+      const urls = [];
+
+      registryNodes.forEach(node => {
+        if (node.httpPort && node.nodeType !== 'registry' && node.nodeName !== 'registry') {
+          urls.push(`http://localhost:${node.httpPort}`);
+        }
+      });
+
+      // 3. Fetch details for each node
+      const result = await Promise.all(urls.map(fetchNodeData));
+      setNodes(result);
+    } catch (err) {
+      console.error("Failed to load network nodes:", err);
+    }
   }
 
   useEffect(() => {

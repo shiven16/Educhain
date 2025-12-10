@@ -29,19 +29,6 @@ export default function NodeCard({ node }) {
         <span className="status-indicator" />
         {isActive ? "Active" : "Offline"}
       </div>
-
-      {isActive && (
-        <div className="node-stats">
-          <div className="stat-item">
-            <span className="stat-label">Peers</span>
-            <span className="stat-value">{node.peers}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Ledger</span>
-            <span className="stat-value">{node.credentials}</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

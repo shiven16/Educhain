@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import bodyParser from "body-parser";
 import { NODE_NAME, NODE_TYPE, HTTP_PORT, REGISTRY_ENABLED, DATA_DIR } from "../config.js";
 import { appendToLedger, findCredentialById, getLedger } from "../lib/ledger.js";
@@ -10,12 +11,13 @@ import path from "path";
 
 export function createApiServer({ broadcastCredential }) {
   const app = express();
+  app.use(cors());
   app.use(express.json());
 
   const { privateKeyPem, publicKeyPem } = ensureKeys();
 
   app.get("/health", (req, res) => {
-    res.json({ status: "ok", node: NODE_NAME });
+    res.json({ status: "ok", nodeName: NODE_NAME, nodeType: NODE_TYPE });
   });
 
   // ---- Issue credential (university nodes) ----
@@ -105,11 +107,18 @@ export function createApiServer({ broadcastCredential }) {
     res.json(getLedger());
   });
 
+  app.get("/stats", (req, res) => {
+    res.json({
+      peerIds: [], // P2P peers (placeholder for now)
+      credentialsInLedger: getLedger().length
+    });
+  });
+
   // ---- Registry endpoints (only for registry node) ----
   if (REGISTRY_ENABLED) {
     app.post("/registry/heartbeat", (req, res) => {
-      const { nodeName, nodeType, timestamp, p2pPort, peerId, ipAddress } = req.body;
-      registryRecordHeartbeat({ nodeName, nodeType, timestamp, p2pPort, peerId, ipAddress });
+      const { nodeName, nodeType, timestamp, p2pPort, httpPort, peerId, ipAddress } = req.body;
+      registryRecordHeartbeat({ nodeName, nodeType, timestamp, p2pPort, httpPort, peerId, ipAddress });
       res.json({ ok: true });
     });
 

@@ -1,4 +1,4 @@
-import { NODE_NAME, NODE_TYPE, REGISTRY_ENABLED, HEARTBEAT_INTERVAL_MS, HEARTBEAT_TIMEOUT_MS, P2P_PORT } from "../config.js";
+import { NODE_NAME, NODE_TYPE, REGISTRY_ENABLED, HEARTBEAT_INTERVAL_MS, HEARTBEAT_TIMEOUT_MS, P2P_PORT, HTTP_PORT } from "../config.js";
 import { multiaddr } from "@multiformats/multiaddr";
 import { peerIdFromString } from "@libp2p/peer-id";
 import os from "os";
@@ -8,16 +8,15 @@ const credentialsStore = []; // Store all published credentials
 
 // Helper function to get container's IP address
 function getContainerIP() {
-  const interfaces = os.networkInterfaces();
-  for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      // Skip internal and non-IPv4 addresses
-      if (iface.family === 'IPv4' && !iface.internal) {
-        return iface.address;
+  const nets = os.networkInterfaces();
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === "IPv4" && !net.internal) {
+        return net.address;
       }
     }
   }
-  return '127.0.0.1'; // fallback
+  return "127.0.0.1";
 }
 
 // ---------- CLIENT SIDE (all nodes except registry) ----------
@@ -28,13 +27,14 @@ export function startHeartbeatToRegistry(node, registryUrl) {
 
   setInterval(async () => {
     try {
-      await fetch(`${registryUrl} /registry/heartbeat`, {
+      await fetch(`${registryUrl}/registry/heartbeat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nodeName: NODE_NAME,
           nodeType: NODE_TYPE,
           p2pPort: P2P_PORT,
+          httpPort: HTTP_PORT,
           peerId: node.peerId.toString(),
           ipAddress: ipAddress,
           timestamp: Date.now()
@@ -93,11 +93,12 @@ export async function publishCredentialToRegistry(registryUrl, credential) {
 }
 
 // ---------- SERVER SIDE (only registry node) ----------
-export function registryRecordHeartbeat({ nodeName, nodeType, timestamp, p2pPort, peerId, ipAddress }) {
+export function registryRecordHeartbeat({ nodeName, nodeType, timestamp, p2pPort, httpPort, peerId, ipAddress }) {
   nodesState.set(nodeName, {
     nodeName,
     nodeType,
     p2pPort,
+    httpPort,
     peerId,
     ipAddress,
     lastSeen: timestamp,
@@ -114,6 +115,7 @@ export function registryGetNodes() {
       nodeName: node.nodeName,
       nodeType: node.nodeType,
       p2pPort: node.p2pPort,
+      httpPort: node.httpPort,
       peerId: node.peerId,
       ipAddress: node.ipAddress,
       status: isAlive ? "active" : "offline",
